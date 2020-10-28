@@ -58,9 +58,9 @@ public class PolicyHandler{
             etx.begin();
 
             String queryString = " UPDATE Receipt\n"+
-                    "    SET stat = 'PAYAPPROVED'\n"+
-                    "  WHERE RCPT_DATE = '"+paymentApproved.getRcptDate()+"'\n"+
-                    "    AND RCPT_SEQ = '"+paymentApproved.getRcptSeq()+"'  ";
+                                 "    SET stat = 'PAYAPPROVED'\n"+
+                                 "  WHERE RCPT_DATE = '"+paymentApproved.getRcptDate()+"'\n"+
+                                 "    AND RCPT_SEQ = '"+paymentApproved.getRcptSeq()+"'  ";
 
             Query query = em.createQuery(queryString);
             query.executeUpdate();
