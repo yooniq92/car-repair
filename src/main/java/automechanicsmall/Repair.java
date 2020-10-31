@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name="Receipt_table")
-@EntityListeners(ReceiptListener.class)
-public class Receipt implements Serializable {
+@Table(name="Repair_table")
+@EntityListeners(RepairListener.class)
+public class Repair implements Serializable {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -28,13 +28,13 @@ public class Receipt implements Serializable {
     @PrePersist
     public void onPrePersist(){
 
-        System.out.println("######################Receipt.java - onPrePersist##############################");
+        System.out.println("######################Repair.java - onPrePersist##############################");
 
         // 예약요청 연계
         if(this.getStat().equals("RESERVED")) {
-            Received received = new Received();
-            BeanUtils.copyProperties(this, received);
-            received.publishAfterCommit();
+            Repaired repaired = new Repaired();
+            BeanUtils.copyProperties(this, repaired);
+            repaired.publishAfterCommit();
         }
 
         /*
@@ -50,9 +50,9 @@ public class Receipt implements Serializable {
         RepairApplication.applicationContext.getBean(automechanicsmall.external.PaymentService.class).pay(payment);
         */
 
-//        ReceivedCancelled receivedCancelled = new ReceivedCancelled();
-//        BeanUtils.copyProperties(this, receivedCancelled);
-//        receivedCancelled.publishAfterCommit();
+//        RepairedCancelled repairedCancelled = new RepairedCancelled();
+//        BeanUtils.copyProperties(this, repairedCancelled);
+//        repairedCancelled.publishAfterCommit();
 
 
 //        Completed completed = new Completed();
@@ -64,7 +64,7 @@ public class Receipt implements Serializable {
 
     @PostPersist
     public void onPostPersist() {
-        System.out.println("######################Receipt.java - onPrePersist##############################");
+        System.out.println("######################Repair.java - onPrePersist##############################");
 
         // 예약요청 연계
         if (this.getStat().equals("RESERVED")) {
@@ -75,7 +75,7 @@ public class Receipt implements Serializable {
     @PostUpdate
     public void onPostUpdate(){
 
-        System.out.println("######################Receipt.java - PostPersist##############################");
+        System.out.println("######################Repair.java - PostPersist##############################");
 
         if(this.getStat().equals("PAYREQUEST")) {
             PayRequested payRequested = new PayRequested();
@@ -89,8 +89,8 @@ public class Receipt implements Serializable {
             // mappings goes here
 
             payment.setRcptDate(this.getRcptDate());
-            payment.setRcptSeq(this.getRcptSeq().toString());
-            payment.setAmt(this.getReprAmt().toString());
+            payment.setRcptSeq(this.getRcptSeq());
+            payment.setAmt(this.getReprAmt());
             payment.setStat("APPROVED");
 
             RepairApplication.applicationContext.getBean(automechanicsmall.external.PaymentService.class).pay(payment);

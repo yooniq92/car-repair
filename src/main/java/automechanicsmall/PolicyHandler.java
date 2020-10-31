@@ -24,23 +24,23 @@ public class PolicyHandler{
     private EntityManagerFactory entityManagerFactory;
 
     @Autowired
-    ReceiptRepository receiptRepository;
+    RepairRepository repairRepository;
 
-    // requestReceipt
+    // requestRepair
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReserved_RequestReceipt(@Payload Reserved reserved){
+    public void wheneverReserved_RequestRepair(@Payload Reserved reserved){
 
         if(reserved.isMe()){
 
-            System.out.println("##### listener RequestReceipt : " + reserved.toJson());
+            System.out.println("##### listener RequestRepair : " + reserved.toJson());
 
-            Receipt receipt = new Receipt();
-            receipt.setResvDate(reserved.getResvDate());
-            receipt.setResvTime(reserved.getResvTime());
-            receipt.setVehiNo(reserved.getVehiNo());
-            receipt.setStat("RESERVED");
+            Repair repair = new Repair();
+            repair.setResvDate(reserved.getResvDate());
+            repair.setResvTime(reserved.getResvTime());
+            repair.setVehiNo(reserved.getVehiNo());
+            repair.setStat("RESERVED");
 
-            receiptRepository.save(receipt);
+            repairRepository.save(repair);
 
         }
     }
@@ -57,8 +57,9 @@ public class PolicyHandler{
 
             etx.begin();
 
-            String queryString = " UPDATE Receipt\n"+
-                                 "    SET stat = 'PAYAPPROVED'\n"+
+            String queryString = " UPDATE Repair\n"+
+                                 "    SET stat = 'PAYAPPROVED',\n"+
+                                 "        ACPT_AMT = '"+paymentApproved.getAmt()+"'\n"+
                                  "  WHERE RCPT_DATE = '"+paymentApproved.getRcptDate()+"'\n"+
                                  "    AND RCPT_SEQ = '"+paymentApproved.getRcptSeq()+"'  ";
 

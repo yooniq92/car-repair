@@ -10,14 +10,14 @@ import com.querydsl.core.types.Path;
 
 
 /**
- * QReceipt is a Querydsl query type for Receipt
+ * QRepair is a Querydsl query type for Repair
  */
 @Generated("com.querydsl.codegen.EntitySerializer")
-public class QReceipt extends EntityPathBase<Receipt> {
+public class QRepair extends EntityPathBase<Repair> {
 
-    private static final long serialVersionUID = -895789858L;
+    private static final long serialVersionUID = 802770983L;
 
-    public static final QReceipt receipt = new QReceipt("receipt");
+    public static final QRepair repair = new QRepair("repair");
 
     public final NumberPath<Integer> acptAmt = createNumber("acptAmt", Integer.class);
 
@@ -37,16 +37,16 @@ public class QReceipt extends EntityPathBase<Receipt> {
 
     public final StringPath vehiNo = createString("vehiNo");
 
-    public QReceipt(String variable) {
-        super(Receipt.class, forVariable(variable));
+    public QRepair(String variable) {
+        super(Repair.class, forVariable(variable));
     }
 
-    public QReceipt(Path<? extends Receipt> path) {
+    public QRepair(Path<? extends Repair> path) {
         super(path.getType(), path.getMetadata());
     }
 
-    public QReceipt(PathMetadata metadata) {
-        super(Receipt.class, metadata);
+    public QRepair(PathMetadata metadata) {
+        super(Repair.class, metadata);
     }
 
 }

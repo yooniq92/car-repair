@@ -1,6 +1,6 @@
 package automechanicsmall;
 
-public class Received extends AbstractEvent {
+public class Repaired extends AbstractEvent {
 
     private Long id;
     private String rcptDate;
@@ -12,7 +12,7 @@ public class Received extends AbstractEvent {
     private Integer reprAmt;
     private Integer acptAmt;
 
-    public Received(){
+    public Repaired(){
         super();
     }
 

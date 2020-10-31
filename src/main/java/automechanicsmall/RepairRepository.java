@@ -11,10 +11,10 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 
 
-public interface ReceiptRepository extends PagingAndSortingRepository<Receipt, Long> {
+public interface RepairRepository extends PagingAndSortingRepository<Repair, Long> {
 
 
-//    public class ReceiptRepositoryMain{
+//    public class RepairRepositoryMain{
 //
 //        @Autowired
 //        private EntityManagerFactory entityManagerFactory;
@@ -25,7 +25,7 @@ public interface ReceiptRepository extends PagingAndSortingRepository<Receipt, L
 //
 //            etx.begin();
 //
-//            Query query = em.createQuery("update stat = '1' set Receipt where id = 1 " );
+//            Query query = em.createQuery("update stat = '1' set Repair where id = 1 " );
 //            query.executeUpdate();
 //
 //            etx.commit(); // DB에 저장 --> UPDATE SET..

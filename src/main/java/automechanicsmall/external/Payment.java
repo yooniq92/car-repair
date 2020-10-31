@@ -4,8 +4,8 @@ public class Payment {
 
     private Long id;
     private String rcptDate;
-    private String rcptSeq;
-    private String amt;
+    private Integer rcptSeq;
+    private Integer amt;
     private String stat;
 
     public Long getId() {
@@ -20,18 +20,15 @@ public class Payment {
     public void setRcptDate(String rcptDate) {
         this.rcptDate = rcptDate;
     }
-    public String getRcptSeq() {
+
+    public Integer getRcptSeq() {
         return rcptSeq;
     }
-    public void setRcptSeq(String rcptSeq) {
+
+    public void setRcptSeq(Integer rcptSeq) {
         this.rcptSeq = rcptSeq;
     }
-    public String getAmt() {
-        return amt;
-    }
-    public void setAmt(String amt) {
-        this.amt = amt;
-    }
+
     public String getStat() {
         return stat;
     }
@@ -39,4 +36,11 @@ public class Payment {
         this.stat = stat;
     }
 
+    public Integer getAmt() {
+        return amt;
+    }
+
+    public void setAmt(Integer amt) {
+        this.amt = amt;
+    }
 }

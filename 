@@ -1,0 +1,284 @@
+[1mdiff --git a/src/main/java/automechanicsmall/PaymentApproved.java b/src/main/java/automechanicsmall/PaymentApproved.java[m
+[1mindex c1d1e84..cee5127 100644[m
+[1m--- a/src/main/java/automechanicsmall/PaymentApproved.java[m
+[1m+++ b/src/main/java/automechanicsmall/PaymentApproved.java[m
+[36m@@ -5,8 +5,8 @@[m [mpublic class PaymentApproved extends AbstractEvent {[m
+ [m
+     private Long id;[m
+     private String rcptDate;[m
+[31m-    private String rcptSeq;[m
+[31m-    private String amt;[m
+[32m+[m[32m    private Integer rcptSeq;[m
+[32m+[m[32m    private Integer amt;[m
+ [m
+     public Long getId() {[m
+         return id;[m
+[36m@@ -22,18 +22,20 @@[m [mpublic class PaymentApproved extends AbstractEvent {[m
+     public void setRcptDate(String rcptDate) {[m
+         this.rcptDate = rcptDate;[m
+     }[m
+[31m-    public String getRcptSeq() {[m
+[32m+[m
+[32m+[m[32m    public Integer getRcptSeq() {[m
+         return rcptSeq;[m
+     }[m
+ [m
+[31m-    public void setRcptSeq(String rcptSeq) {[m
+[32m+[m[32m    public void setRcptSeq(Integer rcptSeq) {[m
+         this.rcptSeq = rcptSeq;[m
+     }[m
+[31m-    public String getAmt() {[m
+[32m+[m
+[32m+[m[32m    public Integer getAmt() {[m
+         return amt;[m
+     }[m
+ [m
+[31m-    public void setAmt(String amt) {[m
+[32m+[m[32m    public void setAmt(Integer amt) {[m
+         this.amt = amt;[m
+     }[m
+ }[m
+[1mdiff --git a/src/main/java/automechanicsmall/PolicyHandler.java b/src/main/java/automechanicsmall/PolicyHandler.java[m
+[1mindex c120e59..01e508f 100644[m
+[1m--- a/src/main/java/automechanicsmall/PolicyHandler.java[m
+[1m+++ b/src/main/java/automechanicsmall/PolicyHandler.java[m
+[36m@@ -24,23 +24,23 @@[m [mpublic class PolicyHandler{[m
+     private EntityManagerFactory entityManagerFactory;[m
+ [m
+     @Autowired[m
+[31m-    ReceiptRepository receiptRepository;[m
+[32m+[m[32m    RepairRepository repairRepository;[m
+ [m
+[31m-    // requestReceipt[m
+[32m+[m[32m    // requestRepair[m
+     @StreamListener(KafkaProcessor.INPUT)[m
+[31m-    public void wheneverReserved_RequestReceipt(@Payload Reserved reserved){[m
+[32m+[m[32m    public void wheneverReserved_RequestRepair(@Payload Reserved reserved){[m
+ [m
+         if(reserved.isMe()){[m
+ [m
+[31m-            System.out.println("##### listener RequestReceipt : " + reserved.toJson());[m
+[32m+[m[32m            System.out.println("##### listener RequestRepair : " + reserved.toJson());[m
+ [m
+[31m-            Receipt receipt = new Receipt();[m
+[31m-            receipt.setResvDate(reserved.getResvDate());[m
+[31m-            receipt.setResvTime(reserved.getResvTime());[m
+[31m-            receipt.setVehiNo(reserved.getVehiNo());[m
+[31m-            receipt.setStat("RESERVED");[m
+[32m+[m[32m            Repair repair = new Repair();[m
+[32m+[m[32m            repair.setResvDate(reserved.getResvDate());[m
+[32m+[m[32m            repair.setResvTime(reserved.getResvTime());[m
+[32m+[m[32m            repair.setVehiNo(reserved.getVehiNo());[m
+[32m+[m[32m            repair.setStat("RESERVED");[m
+ [m
+[31m-            receiptRepository.save(receipt);[m
+[32m+[m[32m            repairRepository.save(repair);[m
+ [m
+         }[m
+     }[m
+[36m@@ -57,8 +57,9 @@[m [mpublic class PolicyHandler{[m
+ [m
+             etx.begin();[m
+ [m
+[31m-            String queryString = " UPDATE Receipt\n"+[m
+[31m-                                 "    SET stat = 'PAYAPPROVED'\n"+[m
+[32m+[m[32m            String queryString = " UPDATE Repair\n"+[m
+[32m+[m[32m                                 "    SET stat = 'PAYAPPROVED',\n"+[m
+[32m+[m[32m                                 "        ACPT_AMT = '"+paymentApproved.getAmt()+"'\n"+[m
+                                  "  WHERE RCPT_DATE = '"+paymentApproved.getRcptDate()+"'\n"+[m
+                                  "    AND RCPT_SEQ = '"+paymentApproved.getRcptSeq()+"'  ";[m
+ [m
+[1mdiff --git a/src/main/java/automechanicsmall/Repair.java b/src/main/java/automechanicsmall/Repair.java[m
+[1mindex 042013b..45d9edb 100644[m
+[1m--- a/src/main/java/automechanicsmall/Repair.java[m
+[1m+++ b/src/main/java/automechanicsmall/Repair.java[m
+[36m@@ -32,9 +32,9 @@[m [mpublic class Repair implements Serializable {[m
+ [m
+         // 예약요청 연계[m
+         if(this.getStat().equals("RESERVED")) {[m
+[31m-            Received received = new Received();[m
+[31m-            BeanUtils.copyProperties(this, received);[m
+[31m-            received.publishAfterCommit();[m
+[32m+[m[32m            Repaired repaired = new Repaired();[m
+[32m+[m[32m            BeanUtils.copyProperties(this, repaired);[m
+[32m+[m[32m            repaired.publishAfterCommit();[m
+         }[m
+ [m
+         /*[m
+[36m@@ -50,9 +50,9 @@[m [mpublic class Repair implements Serializable {[m
+         RepairApplication.applicationContext.getBean(automechanicsmall.external.PaymentService.class).pay(payment);[m
+         */[m
+ [m
+[31m-//        ReceivedCancelled receivedCancelled = new ReceivedCancelled();[m
+[31m-//        BeanUtils.copyProperties(this, receivedCancelled);[m
+[31m-//        receivedCancelled.publishAfterCommit();[m
+[32m+[m[32m//        RepairedCancelled repairedCancelled = new RepairedCancelled();[m
+[32m+[m[32m//        BeanUtils.copyProperties(this, repairedCancelled);[m
+[32m+[m[32m//        repairedCancelled.publishAfterCommit();[m
+ [m
+ [m
+ //        Completed completed = new Completed();[m
+[36m@@ -89,8 +89,8 @@[m [mpublic class Repair implements Serializable {[m
+             // mappings goes here[m
+ [m
+             payment.setRcptDate(this.getRcptDate());[m
+[31m-            payment.setRcptSeq(this.getRcptSeq().toString());[m
+[31m-            payment.setAmt(this.getReprAmt().toString());[m
+[32m+[m[32m            payment.setRcptSeq(this.getRcptSeq());[m
+[32m+[m[32m            payment.setAmt(this.getReprAmt());[m
+             payment.setStat("APPROVED");[m
+ [m
+             RepairApplication.applicationContext.getBean(automechanicsmall.external.PaymentService.class).pay(payment);[m
+[1mdiff --git a/src/main/java/automechanicsmall/RepairController.java b/src/main/java/automechanicsmall/RepairController.java[m
+[1mindex bed728c..a9ed925 100644[m
+[1m--- a/src/main/java/automechanicsmall/RepairController.java[m
+[1m+++ b/src/main/java/automechanicsmall/RepairController.java[m
+[36m@@ -14,7 +14,7 @@[m [mimport java.util.List;[m
+ [m
+ @RestController[m
+ @RequestMapping("/repairs")[m
+[31m-public class RrepairController  {[m
+[32m+[m[32mpublic class RepairController  {[m
+ [m
+     //GET 정상 작동1[m
+ //    @GetMapping("/{id}")[m
+[1mdiff --git a/src/main/java/automechanicsmall/Repaired.java b/src/main/java/automechanicsmall/Repaired.java[m
+[1mindex e9eabc7..5faa9ff 100644[m
+[1m--- a/src/main/java/automechanicsmall/Repaired.java[m
+[1m+++ b/src/main/java/automechanicsmall/Repaired.java[m
+[36m@@ -1,6 +1,6 @@[m
+ package automechanicsmall;[m
+ [m
+[31m-public class Received extends AbstractEvent {[m
+[32m+[m[32mpublic class Repaired extends AbstractEvent {[m
+ [m
+     private Long id;[m
+     private String rcptDate;[m
+[36m@@ -12,7 +12,7 @@[m [mpublic class Received extends AbstractEvent {[m
+     private Integer reprAmt;[m
+     private Integer acptAmt;[m
+ [m
+[31m-    public Received(){[m
+[32m+[m[32m    public Repaired(){[m
+         super();[m
+     }[m
+ [m
+[1mdiff --git a/src/main/java/automechanicsmall/external/Payment.java b/src/main/java/automechanicsmall/external/Payment.java[m
+[1mindex 811137f..20a82fc 100644[m
+[1m--- a/src/main/java/automechanicsmall/external/Payment.java[m
+[1m+++ b/src/main/java/automechanicsmall/external/Payment.java[m
+[36m@@ -4,8 +4,8 @@[m [mpublic class Payment {[m
+ [m
+     private Long id;[m
+     private String rcptDate;[m
+[31m-    private String rcptSeq;[m
+[31m-    private String amt;[m
+[32m+[m[32m    private Integer rcptSeq;[m
+[32m+[m[32m    private Integer amt;[m
+     private String stat;[m
+ [m
+     public Long getId() {[m
+[36m@@ -20,18 +20,15 @@[m [mpublic class Payment {[m
+     public void setRcptDate(String rcptDate) {[m
+         this.rcptDate = rcptDate;[m
+     }[m
+[31m-    public String getRcptSeq() {[m
+[32m+[m
+[32m+[m[32m    public Integer getRcptSeq() {[m
+         return rcptSeq;[m
+     }[m
+[31m-    public void setRcptSeq(String rcptSeq) {[m
+[32m+[m
+[32m+[m[32m    public void setRcptSeq(Integer rcptSeq) {[m
+         this.rcptSeq = rcptSeq;[m
+     }[m
+[31m-    public String getAmt() {[m
+[31m-        return amt;[m
+[31m-    }[m
+[31m-    public void setAmt(String amt) {[m
+[31m-        this.amt = amt;[m
+[31m-    }[m
+[32m+[m
+     public String getStat() {[m
+         return stat;[m
+     }[m
+[36m@@ -39,4 +36,11 @@[m [mpublic class Payment {[m
+         this.stat = stat;[m
+     }[m
+ [m
+[32m+[m[32m    public Integer getAmt() {[m
+[32m+[m[32m        return amt;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void setAmt(Integer amt) {[m
+[32m+[m[32m        this.amt = amt;[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/target/classes/automechanicsmall/PaymentApproved.class b/target/classes/automechanicsmall/PaymentApproved.class[m
+[1mindex 960dd2c..5fcf7a0 100644[m
+Binary files a/target/classes/automechanicsmall/PaymentApproved.class and b/target/classes/automechanicsmall/PaymentApproved.class differ
+[1mdiff --git a/target/classes/automechanicsmall/PolicyHandler.class b/target/classes/automechanicsmall/PolicyHandler.class[m
+[1mindex f4665a4..3879b9b 100644[m
+Binary files a/target/classes/automechanicsmall/PolicyHandler.class and b/target/classes/automechanicsmall/PolicyHandler.class differ
+[1mdiff --git a/target/classes/automechanicsmall/QReceipt.class b/target/classes/automechanicsmall/QReceipt.class[m
+[1mdeleted file mode 100644[m
+[1mindex 6a3ad1a..0000000[m
+Binary files a/target/classes/automechanicsmall/QReceipt.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/Receipt.class b/target/classes/automechanicsmall/Receipt.class[m
+[1mdeleted file mode 100644[m
+[1mindex 2beb537..0000000[m
+Binary files a/target/classes/automechanicsmall/Receipt.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/ReceiptController.class b/target/classes/automechanicsmall/ReceiptController.class[m
+[1mdeleted file mode 100644[m
+[1mindex ad5f133..0000000[m
+Binary files a/target/classes/automechanicsmall/ReceiptController.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/ReceiptListener.class b/target/classes/automechanicsmall/ReceiptListener.class[m
+[1mdeleted file mode 100644[m
+[1mindex 727110a..0000000[m
+Binary files a/target/classes/automechanicsmall/ReceiptListener.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/ReceiptRepository.class b/target/classes/automechanicsmall/ReceiptRepository.class[m
+[1mdeleted file mode 100644[m
+[1mindex 5e7d3fd..0000000[m
+Binary files a/target/classes/automechanicsmall/ReceiptRepository.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/Received.class b/target/classes/automechanicsmall/Received.class[m
+[1mdeleted file mode 100644[m
+[1mindex b2919df..0000000[m
+Binary files a/target/classes/automechanicsmall/Received.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/ReceivedCancelled.class b/target/classes/automechanicsmall/ReceivedCancelled.class[m
+[1mdeleted file mode 100644[m
+[1mindex f0e2005..0000000[m
+Binary files a/target/classes/automechanicsmall/ReceivedCancelled.class and /dev/null differ
+[1mdiff --git a/target/classes/automechanicsmall/external/Payment.class b/target/classes/automechanicsmall/external/Payment.class[m
+[1mindex e0e5cac..3da8dd0 100644[m
+Binary files a/target/classes/automechanicsmall/external/Payment.class and b/target/classes/automechanicsmall/external/Payment.class differ
+[1mdiff --git a/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst b/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst[m
+[1mindex c190850..96116a4 100644[m
+[1m--- a/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst[m
+[1m+++ b/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst[m
+[36m@@ -1,19 +1,19 @@[m
+[31m-automechanicsmall\ReceiptListener.class[m
+[31m-automechanicsmall\ReceivedCancelled.class[m
+[32m+[m[32mautomechanicsmall\RepairedCancelled.class[m
+ automechanicsmall\AbstractEvent$1.class[m
+ automechanicsmall\Reserved.class[m
+ automechanicsmall\external\PaymentService.class[m
+[31m-automechanicsmall\Receipt.class[m
+ automechanicsmall\PaymentApproved.class[m
+ automechanicsmall\BeanUtil.class[m
+ automechanicsmall\PolicyHandler.class[m
+[32m+[m[32mautomechanicsmall\RepairListener.class[m
+ automechanicsmall\external\Payment.class[m
+[31m-automechanicsmall\ReceiptController.class[m
+ automechanicsmall\PayRequested.class[m
+[31m-automechanicsmall\ReceiptRepository.class[m
+[32m+[m[32mautomechanicsmall\Repaired.class[m
+ automechanicsmall\AbstractEvent.class[m
+ automechanicsmall\Completed.class[m
+ automechanicsmall\config\kafka\KafkaProcessor.class[m
+[31m-automechanicsmall\QReceipt.class[m
+[32m+[m[32mautomechanicsmall\QRepair.class[m
+[32m+[m[32mautomechanicsmall\RepairRepository.class[m
+[32m+[m[32mautomechanicsmall\RepairController.class[m
+ automechanicsmall\RepairApplication.class[m
+[31m-automechanicsmall\Received.class[m
+[32m+[m[32mautomechanicsmall\Repair.class[m

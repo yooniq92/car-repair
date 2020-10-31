@@ -13,19 +13,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("/receipts")
-public class ReceiptController  {
+@RequestMapping("/repairs")
+public class RepairController  {
 
     //GET 정상 작동1
 //    @GetMapping("/{id}")
-//    public void cancel(@RequestBody Receipt receipt, @PathVariable("id") int id) {
-//        System.out.println("###########ReceiptController.java - ReceiptController##############");
+//    public void cancel(@RequestBody Repair repair, @PathVariable("id") int id) {
+//        System.out.println("###########RepairController.java - RepairController##############");
 //        System.out.println(id);
 //        System.out.println(id);
 //    }
 
     @Autowired
-    private ReceiptRepository receiptRepository;
+    private RepairRepository repairRepository;
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
@@ -33,7 +33,7 @@ public class ReceiptController  {
     @GetMapping("/cancel")
     public void cancel(@RequestParam("rcptDate") String rcptDate, @RequestParam("rcptTime") String rcptTime) {
 
-        System.out.println("###########ReceiptController.java - ReceiptController ##############");
+        System.out.println("###########RepairController.java - RepairController ##############");
         //System.out.println(rcptDate);
         //System.out.println(rcptTime);
 
@@ -42,7 +42,7 @@ public class ReceiptController  {
 
         etx.begin();
 
-        String queryString = " UPDATE Receipt\n"+
+        String queryString = " UPDATE Repair\n"+
                              "    SET stat = 'CANCELLED'\n"+
                              "  WHERE RESV_DATE = '"+rcptDate+"'\n"+
                              "    AND RESV_TIME = '"+rcptTime+"'  ";

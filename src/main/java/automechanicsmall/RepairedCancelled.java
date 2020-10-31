@@ -1,10 +1,10 @@
 package automechanicsmall;
 
-public class ReceivedCancelled extends AbstractEvent {
+public class RepairedCancelled extends AbstractEvent {
 
     private Long id;
 
-    public ReceivedCancelled(){
+    public RepairedCancelled(){
         super();
     }
 
